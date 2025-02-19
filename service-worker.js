@@ -1,11 +1,10 @@
 const CACHE_NAME = 'pwa-demo-v1';
+const BASE_PATH = '/WindowsAIAction';
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/styles.css',
-  '/app.js',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png'
+  `${BASE_PATH}/`,
+  `${BASE_PATH}/index.html`,
+  `${BASE_PATH}/styles.css`,
+  `${BASE_PATH}/app.js`
 ];
 
 // Install event - cache assets
@@ -30,7 +29,7 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   // Handle share target requests
   if (event.request.url.includes('/share-target/')) {
-    event.respondWith(Response.redirect('/?share=true'));
+    event.respondWith(Response.redirect(`${BASE_PATH}/?share=true`));
     event.waitUntil(
       (async () => {
         const formData = await event.request.formData();

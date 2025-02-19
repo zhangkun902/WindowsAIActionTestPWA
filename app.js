@@ -36,7 +36,7 @@ navigator.serviceWorker.addEventListener('message', event => {
 if ('registerProtocolHandler' in navigator) {
   try {
     navigator.registerProtocolHandler('web+pwa',
-      `${window.location.origin}/?protocol=%s`,
+      `${window.location.origin}/WindowsAIAction/?protocol=%s`,
       'PWA Protocol Handler'
     );
   } catch (err) {
