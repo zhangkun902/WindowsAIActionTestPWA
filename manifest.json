@@ -2,7 +2,7 @@
   "name": "Protocol & Share Handler PWA",
   "short_name": "PWA Demo",
   "description": "A PWA demonstrating protocol handlers and share target",
-  "start_url": "/",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#2196F3",
