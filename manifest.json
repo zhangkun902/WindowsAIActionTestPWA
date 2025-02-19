@@ -1,7 +1,7 @@
 {
     "lang": "en-us",
-    "name": "My First PWA",
-    "description": "A basic PWA I created for testing purposes.",
+    "name": "AI Action Sample App",
+    "description": "A basic PWA created for testing Windows AI Action.",
     "start_url": "/",
     "display": "standalone", 
     "icons": [
