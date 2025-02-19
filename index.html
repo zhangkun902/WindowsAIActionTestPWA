@@ -3,8 +3,37 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <link rel="shortcut icon" href="https://c.s-microsoft.com/favicon.ico?v2" />
+    <meta name="theme-color" content="#2196F3"/>
+    <link rel="shortcut icon" href="https://cdn.glitch.com/47e82a3e-e99d-4a0a-86f9-4f8bea8ede1e%2Fastronaut-icon.png?v=1587002651149" />
     <link rel="manifest" href="./manifest.json">
-    <title>Welcome!</title>
+    <link rel="stylesheet" href="styles.css">
+    <title>Protocol & Share Handler PWA</title>
   </head>
+  <body>
+    <div class="container">
+      <h1>Protocol & Share Handler PWA</h1>
+      
+      <div class="card">
+        <h2>Protocol Handler</h2>
+        <p>Try opening a link with: <code>web+pwa://test</code></p>
+        <div id="protocol-content"></div>
+      </div>
+
+      <div class="card">
+        <h2>Share Target</h2>
+        <p>Try sharing content with this PWA</p>
+        <div id="share-content"></div>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+      // Register service worker
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./service-worker.js')
+          .then(registration => console.log('ServiceWorker registered'))
+          .catch(err => console.error('ServiceWorker registration failed:', err));
+      }
+    </script>
+  </body>
 </html>

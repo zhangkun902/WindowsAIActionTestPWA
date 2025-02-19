@@ -1,14 +1,45 @@
 {
-    "lang": "en-us",
-    "name": "AI Action Sample App",
-    "description": "A basic PWA created for testing Windows AI Action.",
-    "start_url": "/",
-    "display": "standalone", 
-    "icons": [
+  "name": "Protocol & Share Handler PWA",
+  "short_name": "PWA Demo",
+  "description": "A PWA demonstrating protocol handlers and share target",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2196F3",
+  "icons": [
+    {
+      "src": "https://cdn.glitch.com/47e82a3e-e99d-4a0a-86f9-4f8bea8ede1e%2Fastronaut-icon.png?v=1587002651149",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://cdn.glitch.com/47e82a3e-e99d-4a0a-86f9-4f8bea8ede1e%2Fastronaut-icon.png?v=1587002651149",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "protocol_handlers": [
+    {
+      "protocol": "web+pwa",
+      "url": "/?protocol=%s"
+    }
+  ],
+  "share_target": {
+    "action": "/share-target/",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [
         {
-            "src": "https://cdn.glitch.com/47e82a3e-e99d-4a0a-86f9-4f8bea8ede1e%2Fastronaut-icon.png?v=1587002651149",
-            "sizes": "512x512",
-            "type": "image/png"
+          "name": "media",
+          "accept": ["image/*", "video/*"]
         }
-    ]
+      ]
+    }
+  }
 }
