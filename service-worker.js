@@ -4,7 +4,8 @@ const ASSETS = [
   `${BASE_PATH}/`,
   `${BASE_PATH}/index.html`,
   `${BASE_PATH}/styles.css`,
-  `${BASE_PATH}/app.js`
+  `${BASE_PATH}/app.js`,
+  `${BASE_PATH}/share-test.html`
 ];
 
 // Install event - cache assets

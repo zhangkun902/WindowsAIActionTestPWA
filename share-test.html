@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Share Target Test Page</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            line-height: 1.6;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 1rem;
+        }
+        button:hover {
+            background: #1976D2;
+        }
+        pre {
+            background: #f5f5f5;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .error {
+            color: #d32f2f;
+            background: #ffebee;
+            padding: 1rem;
+            border-radius: 4px;
+            margin: 1rem 0;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Share Target Test Page</h1>
+    <div class="card">
+        <h2>Share Options</h2>
+        <p>Click the buttons below to share different types of content to your PWA:</p>
+        <button onclick="shareText()">Share Text</button>
+        <button onclick="shareLink()">Share Link</button>
+        <button onclick="shareTextAndLink()">Share Text + Link</button>
+        <button onclick="shareCustomData()">Share Custom Data</button>
+    </div>
+
+    <div class="error" id="error"></div>
+
+    <div class="card">
+        <h2>Share API Status</h2>
+        <pre id="status"></pre>
+    </div>
+
+    <script>
+        // Update status display
+        const statusElement = document.getElementById('status');
+        const errorElement = document.getElementById('error');
+        
+        // Check if Web Share API is supported
+        if (navigator.share) {
+            statusElement.textContent = 'Web Share API is supported! ✅';
+        } else {
+            statusElement.textContent = 'Web Share API is not supported in this browser ❌';
+        }
+
+        // Share handlers
+        async function shareText() {
+            try {
+                await navigator.share({
+                    title: 'Test Share',
+                    text: 'This is a test message shared from the test page!'
+                });
+                showSuccess('Text shared successfully!');
+            } catch (err) {
+                showError(err);
+            }
+        }
+
+        async function shareLink() {
+            try {
+                await navigator.share({
+                    title: 'Test Link Share',
+                    url: 'https://runyuany.github.io/WindowsAIAction/'
+                });
+                showSuccess('Link shared successfully!');
+            } catch (err) {
+                showError(err);
+            }
+        }
+
+        async function shareTextAndLink() {
+            try {
+                await navigator.share({
+                    title: 'Combined Share Test',
+                    text: 'Check out this amazing PWA test page:',
+                    url: 'https://runyuany.github.io/WindowsAIAction/'
+                });
+                showSuccess('Combined content shared successfully!');
+            } catch (err) {
+                showError(err);
+            }
+        }
+
+        async function shareCustomData() {
+            try {
+                const data = {
+                    title: 'Custom Share Data',
+                    text: JSON.stringify({
+                        type: 'custom',
+                        timestamp: new Date().toISOString(),
+                        data: {
+                            id: '123',
+                            value: 'test'
+                        }
+                    }),
+                    url: 'https://runyuany.github.io/WindowsAIAction/'
+                };
+                await navigator.share(data);
+                showSuccess('Custom data shared successfully!');
+            } catch (err) {
+                showError(err);
+            }
+        }
+
+        function showError(err) {
+            errorElement.style.display = 'block';
+            errorElement.textContent = `Share failed: ${err.message}`;
+            setTimeout(() => {
+                errorElement.style.display = 'none';
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            statusElement.textContent = message;
+            setTimeout(() => {
+                if (navigator.share) {
+                    statusElement.textContent = 'Web Share API is supported! ✅';
+                }
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
