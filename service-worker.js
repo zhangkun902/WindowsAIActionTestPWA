@@ -40,43 +40,33 @@ self.addEventListener('fetch', event => {
           text: formData.get('text') || '',
           url: formData.get('url') || '',
           files: {
-            images: formData.getAll('images'),
-            documents: formData.getAll('documents'),
-            media: formData.getAll('media')
+            images: [],
+            documents: [],
+            media: []
           }
         };
 
-        // Convert files to object URLs
-        if (data.files.images.length) {
-          data.files.images = await Promise.all(
-            data.files.images.map(async file => ({
-              url: URL.createObjectURL(file),
-              name: file.name,
-              type: file.type,
-              size: file.size
-            }))
-          );
+        // Process all files from the form data
+        const files = formData.getAll('media');
+        for (const file of files) {
+          const url = URL.createObjectURL(file);
+          const fileData = {
+            url,
+            name: file.name,
+            type: file.type,
+            size: file.size
+          };
+
+          // Categorize file based on its type
+          if (file.type.startsWith('image/')) {
+            data.files.images.push(fileData);
+          } else if (file.type.startsWith('video/') || file.type.startsWith('audio/')) {
+            data.files.media.push(fileData);
+          } else {
+            data.files.documents.push(fileData);
+          }
         }
-        if (data.files.documents.length) {
-          data.files.documents = await Promise.all(
-            data.files.documents.map(async file => ({
-              url: URL.createObjectURL(file),
-              name: file.name,
-              type: file.type,
-              size: file.size
-            }))
-          );
-        }
-        if (data.files.media.length) {
-          data.files.media = await Promise.all(
-            data.files.media.map(async file => ({
-              url: URL.createObjectURL(file),
-              name: file.name,
-              type: file.type,
-              size: file.size
-            }))
-          );
-        }
+        console.log('Processed shared data:', data);
 
         // Store the shared data
         const client = await self.clients.get(event.resultingClientId);

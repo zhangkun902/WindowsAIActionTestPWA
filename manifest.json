@@ -37,16 +37,8 @@
       "url": "url",
       "files": [
         {
-          "name": "images",
-          "accept": ["image/*"]
-        },
-        {
-          "name": "documents",
-          "accept": [".pdf", ".txt", ".doc", ".docx"]
-        },
-        {
           "name": "media",
-          "accept": ["video/*", "audio/*"]
+          "accept": ["image/*", "video/*", "audio/*", ".pdf", ".txt", ".doc", ".docx"]
         }
       ]
     }
