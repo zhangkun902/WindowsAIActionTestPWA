@@ -35,6 +35,7 @@ self.addEventListener('fetch', event => {
       (async () => {
         const formData = await event.request.formData();
         // Process form data including files
+        // Create a data object to store the shared content
         const data = {
           title: formData.get('title') || '',
           text: formData.get('text') || '',
@@ -46,27 +47,45 @@ self.addEventListener('fetch', event => {
           }
         };
 
+        console.log('Form data received:', formData);
+
         // Process all files from the form data
-        const files = formData.getAll('media');
-        for (const file of files) {
-          const url = URL.createObjectURL(file);
+        const files = Array.from(formData.getAll('media') || []);
+        console.log('Files received:', files.map(f => ({ name: f.name, type: f.type })));
+        await Promise.all(files.map(async (file) => {
+          const blob = await file.arrayBuffer().then(buffer => new Blob([buffer], { type: file.type }));
+          const url = URL.createObjectURL(blob);
           const fileData = {
             url,
             name: file.name,
             type: file.type,
-            size: file.size
+            size: file.size,
+            lastModified: file.lastModified
           };
 
+          console.log('Processing file:', file.name, file.type);
+          
           // Categorize file based on its type
           if (file.type.startsWith('image/')) {
             data.files.images.push(fileData);
+            console.log('Added as image:', fileData);
           } else if (file.type.startsWith('video/') || file.type.startsWith('audio/')) {
             data.files.media.push(fileData);
+            console.log('Added as media:', fileData);
           } else {
             data.files.documents.push(fileData);
+            console.log('Added as document:', fileData);
           }
-        }
-        console.log('Processed shared data:', data);
+        }));
+
+        console.log('Final processed data:', {
+          ...data,
+          files: {
+            images: data.files.images.length,
+            documents: data.files.documents.length,
+            media: data.files.media.length
+          }
+        });
 
         // Store the shared data
         const client = await self.clients.get(event.resultingClientId);
