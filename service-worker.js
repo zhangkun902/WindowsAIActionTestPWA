@@ -33,63 +33,48 @@ self.addEventListener('fetch', event => {
     event.respondWith(Response.redirect(`${BASE_PATH}/?share=true`));
     event.waitUntil(
       (async () => {
-        const formData = await event.request.formData();
-        // Process form data including files
-        // Create a data object to store the shared content
-        const data = {
-          title: formData.get('title') || '',
-          text: formData.get('text') || '',
-          url: formData.get('url') || '',
-          files: {
-            images: [],
-            documents: [],
-            media: []
-          }
-        };
-
-        console.log('Form data received:', formData);
-
-        // Process all files from the form data
-        const files = Array.from(formData.getAll('media') || []);
-        console.log('Files received:', files.map(f => ({ name: f.name, type: f.type })));
-        await Promise.all(files.map(async (file) => {
-          const blob = await file.arrayBuffer().then(buffer => new Blob([buffer], { type: file.type }));
-          const url = URL.createObjectURL(blob);
-          const fileData = {
-            url,
-            name: file.name,
-            type: file.type,
-            size: file.size,
-            lastModified: file.lastModified
+        try {
+          const formData = await event.request.formData();
+          
+          // Extract text data
+          const data = {
+            title: formData.get('title') || '',
+            text: formData.get('text') || '',
+            url: formData.get('url') || ''
           };
 
-          console.log('Processing file:', file.name, file.type);
-          
-          // Categorize file based on its type
-          if (file.type.startsWith('image/')) {
-            data.files.images.push(fileData);
-            console.log('Added as image:', fileData);
-          } else if (file.type.startsWith('video/') || file.type.startsWith('audio/')) {
-            data.files.media.push(fileData);
-            console.log('Added as media:', fileData);
+          // Get all files from form data
+          const files = Array.from(formData.getAll('media') || []);
+          console.log('Files received:', files.map(f => ({ name: f.name, type: f.type })));
+
+          // Convert files to proper File objects
+          const processedFiles = await Promise.all(files.map(async (file) => {
+            const arrayBuffer = await file.arrayBuffer();
+            return new File([arrayBuffer], file.name, {
+              type: file.type,
+              lastModified: file.lastModified
+            });
+          }));
+
+          // Get the client and send the data
+          const client = await self.clients.get(event.resultingClientId);
+          if (client) {
+            client.postMessage({
+              type: 'SHARE_TARGET_DATA',
+              data: data,
+              files: processedFiles
+            });
+
+            console.log('Sent to client:', {
+              data,
+              fileCount: processedFiles.length
+            });
           } else {
-            data.files.documents.push(fileData);
-            console.log('Added as document:', fileData);
+            console.error('No client found to send the data to');
           }
-        }));
-
-        console.log('Final processed data:', {
-          ...data,
-          files: {
-            images: data.files.images.length,
-            documents: data.files.documents.length,
-            media: data.files.media.length
-          }
-        });
-
-        // Store the shared data
-        const client = await self.clients.get(event.resultingClientId);
-        client.postMessage({ type: 'SHARE_TARGET_DATA', data });
+        } catch (error) {
+          console.error('Error processing share target:', error);
+        }
       })()
     );
     return;

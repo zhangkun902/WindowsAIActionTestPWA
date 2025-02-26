@@ -14,19 +14,79 @@ function handleProtocolLaunch() {
   }
 }
 
-// Handle shared data
-function handleSharedData(data) {
+// Handle files from share target API
+async function handleSharedFiles(files) {
   try {
-    const shareContent = document.getElementById('share-content');
     const imageDisplay = document.querySelector('.image-display');
     const mediaDisplay = document.querySelector('.media-display');
 
     if (!imageDisplay || !mediaDisplay) {
-      console.error('Preview elements not found. Make sure the HTML structure is correct.');
+      console.error('Preview elements not found');
       return;
     }
 
-    console.log('Handling shared data:', data);
+    // Clear previous content
+    imageDisplay.innerHTML = '';
+    mediaDisplay.innerHTML = '';
+
+    console.log('Handling shared files:', files);
+
+    for (const file of files) {
+      const fileURL = URL.createObjectURL(file);
+      console.log('Created URL for file:', file.name, fileURL);
+
+      if (file.type.startsWith('image/')) {
+        // Create and add image element
+        const imgContainer = document.createElement('div');
+        imgContainer.className = 'image-container';
+
+        const img = document.createElement('img');
+        img.src = fileURL;
+        img.alt = file.name;
+        img.title = file.name;
+        img.onclick = () => openFullscreen(img);
+
+        const info = document.createElement('div');
+        info.className = 'image-info';
+        info.innerHTML = `
+          <span class="file-name">${file.name}</span>
+          <span class="file-size">${formatFileSize(file.size)}</span>
+        `;
+
+        imgContainer.appendChild(img);
+        imgContainer.appendChild(info);
+        imageDisplay.appendChild(imgContainer);
+
+      } else if (file.type.startsWith('video/')) {
+        // Create and add video element
+        const videoContainer = document.createElement('div');
+        videoContainer.className = 'media-wrapper';
+
+        const video = document.createElement('video');
+        video.controls = true;
+        video.src = fileURL;
+
+        const info = document.createElement('div');
+        info.className = 'file-info';
+        info.innerHTML = `
+          <span class="file-name">${file.name}</span>
+          <span class="file-size">${formatFileSize(file.size)}</span>
+        `;
+
+        videoContainer.appendChild(video);
+        videoContainer.appendChild(info);
+        mediaDisplay.appendChild(videoContainer);
+      }
+    }
+  } catch (error) {
+    console.error('Error handling shared files:', error);
+  }
+}
+
+// Handle shared data
+function handleSharedData(data) {
+  try {
+    const shareContent = document.getElementById('share-content');
 
     // Display text content
     let textContent = '<div class="received-data">';
@@ -153,20 +213,26 @@ function formatFileSize(bytes) {
   else return (bytes / 1048576).toFixed(1) + ' MB';
 }
 
-// Listen for messages from service worker
+    // Listen for messages from service worker
 navigator.serviceWorker.addEventListener('message', event => {
   if (event.data.type === 'SHARE_TARGET_DATA') {
+    // Handle text data
     handleSharedData(event.data.data);
-    // Revoke object URLs when they're no longer needed
-    if (event.data.data.files) {
-      window.addEventListener('unload', () => {
-        Object.values(event.data.data.files).flat().forEach(file => {
-          if (file.url && file.url.startsWith('blob:')) {
-            URL.revokeObjectURL(file.url);
-          }
-        });
-      });
+    
+    // Handle files if present
+    if (event.data.files && event.data.files.length > 0) {
+      handleSharedFiles(event.data.files);
     }
+
+    // Cleanup on page unload
+    window.addEventListener('unload', () => {
+      const images = document.querySelectorAll('img[src^="blob:"], video[src^="blob:"]');
+      images.forEach(element => {
+        if (element.src.startsWith('blob:')) {
+          URL.revokeObjectURL(element.src);
+        }
+      });
+    });
   }
 });
 
