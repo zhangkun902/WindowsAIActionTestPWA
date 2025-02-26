@@ -34,11 +34,49 @@ self.addEventListener('fetch', event => {
     event.waitUntil(
       (async () => {
         const formData = await event.request.formData();
+        // Process form data including files
         const data = {
           title: formData.get('title') || '',
           text: formData.get('text') || '',
-          url: formData.get('url') || ''
+          url: formData.get('url') || '',
+          files: {
+            images: formData.getAll('images'),
+            documents: formData.getAll('documents'),
+            media: formData.getAll('media')
+          }
         };
+
+        // Convert files to object URLs
+        if (data.files.images.length) {
+          data.files.images = await Promise.all(
+            data.files.images.map(async file => ({
+              url: URL.createObjectURL(file),
+              name: file.name,
+              type: file.type,
+              size: file.size
+            }))
+          );
+        }
+        if (data.files.documents.length) {
+          data.files.documents = await Promise.all(
+            data.files.documents.map(async file => ({
+              url: URL.createObjectURL(file),
+              name: file.name,
+              type: file.type,
+              size: file.size
+            }))
+          );
+        }
+        if (data.files.media.length) {
+          data.files.media = await Promise.all(
+            data.files.media.map(async file => ({
+              url: URL.createObjectURL(file),
+              name: file.name,
+              type: file.type,
+              size: file.size
+            }))
+          );
+        }
 
         // Store the shared data
         const client = await self.clients.get(event.resultingClientId);
