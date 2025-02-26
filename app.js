@@ -17,106 +17,135 @@ function handleProtocolLaunch() {
 // Handle shared data
 function handleSharedData(data) {
   const shareContent = document.getElementById('share-content');
-  let filesHtml = '';
+  let content = `<div class="received-data">`;
 
-  // Handle images
-  if (data.files?.images?.length > 0) {
-    filesHtml += `
-      <div class="shared-files images">
-        <h4>Shared Images:</h4>
-        <div class="image-grid">
-          ${data.files.images.map(file => `
-            <div class="image-item">
-              <img src="${file.url}" alt="${file.name}" title="${file.name}">
-              <div class="file-info">
-                <span>${file.name}</span>
-                <span>${(file.size / 1024).toFixed(1)} KB</span>
+  // Add title and text if present
+  if (data.title || data.text || data.url) {
+    content += `<div class="text-content">`;
+    if (data.title) content += `<p><strong>Title:</strong> ${data.title}</p>`;
+    if (data.text) content += `<p><strong>Text:</strong> ${data.text}</p>`;
+    if (data.url) content += `<p><strong>URL:</strong> <a href="${data.url}" target="_blank">${data.url}</a></p>`;
+    content += `</div>`;
+  }
+
+  // Handle shared files
+  if (data.files) {
+    // Display images
+    if (data.files.images?.length) {
+      content += `
+        <div class="files-section">
+          <h4>Shared Images</h4>
+          <div class="image-grid">
+            ${data.files.images.map(file => `
+              <div class="image-wrapper">
+                <img src="${file.url}" alt="${file.name}" onClick="openFullscreen(this)">
+                <div class="file-info">
+                  <span class="file-name">${file.name}</span>
+                  <span class="file-size">${formatFileSize(file.size)}</span>
+                </div>
               </div>
-            </div>
-          `).join('')}
+            `).join('')}
+          </div>
         </div>
-      </div>
-    `;
-  }
+      `;
+    }
 
-  // Handle documents
-  if (data.files?.documents?.length > 0) {
-    filesHtml += `
-      <div class="shared-files documents">
-        <h4>Shared Documents:</h4>
-        <ul class="document-list">
-          ${data.files.documents.map(file => `
-            <li>
-              <a href="${file.url}" download="${file.name}" class="document-link">
+    // Display documents
+    if (data.files.documents?.length) {
+      content += `
+        <div class="files-section">
+          <h4>Shared Documents</h4>
+          <div class="document-list">
+            ${data.files.documents.map(file => `
+              <a href="${file.url}" download="${file.name}" class="document-item">
+                <span class="document-icon">📄</span>
                 <span class="file-name">${file.name}</span>
-                <span class="file-info">${file.type} - ${(file.size / 1024).toFixed(1)} KB</span>
+                <span class="file-info">${file.type} • ${formatFileSize(file.size)}</span>
               </a>
-            </li>
-          `).join('')}
-        </ul>
-      </div>
-    `;
-  }
-
-  // Handle media files
-  if (data.files?.media?.length > 0) {
-    filesHtml += `
-      <div class="shared-files media">
-        <h4>Shared Media:</h4>
-        <div class="media-list">
-          ${data.files.media.map(file => {
-            if (file.type.startsWith('video/')) {
-              return `
-                <div class="media-item">
-                  <video controls>
-                    <source src="${file.url}" type="${file.type}">
-                    Your browser does not support the video tag.
-                  </video>
-                  <div class="file-info">
-                    <span>${file.name}</span>
-                    <span>${(file.size / 1024).toFixed(1)} KB</span>
-                  </div>
-                </div>
-              `;
-            } else if (file.type.startsWith('audio/')) {
-              return `
-                <div class="media-item">
-                  <audio controls>
-                    <source src="${file.url}" type="${file.type}">
-                    Your browser does not support the audio tag.
-                  </audio>
-                  <div class="file-info">
-                    <span>${file.name}</span>
-                    <span>${(file.size / 1024).toFixed(1)} KB</span>
-                  </div>
-                </div>
-              `;
-            }
-          }).join('')}
+            `).join('')}
+          </div>
         </div>
-      </div>
-    `;
+      `;
+    }
+
+    // Display media files
+    if (data.files.media?.length) {
+      content += `
+        <div class="files-section">
+          <h4>Shared Media</h4>
+          <div class="media-grid">
+            ${data.files.media.map(file => {
+              if (file.type.startsWith('video/')) {
+                return `
+                  <div class="media-wrapper">
+                    <video controls>
+                      <source src="${file.url}" type="${file.type}">
+                      Your browser does not support video playback.
+                    </video>
+                    <div class="file-info">
+                      <span class="file-name">${file.name}</span>
+                      <span class="file-size">${formatFileSize(file.size)}</span>
+                    </div>
+                  </div>
+                `;
+              } else if (file.type.startsWith('audio/')) {
+                return `
+                  <div class="media-wrapper audio">
+                    <audio controls>
+                      <source src="${file.url}" type="${file.type}">
+                      Your browser does not support audio playback.
+                    </audio>
+                    <div class="file-info">
+                      <span class="file-name">${file.name}</span>
+                      <span class="file-size">${formatFileSize(file.size)}</span>
+                    </div>
+                  </div>
+                `;
+              }
+              return '';
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
   }
 
-  // Display text and URL if present
-  const textContent = [];
-  if (data.title) textContent.push(`<strong>Title:</strong> ${data.title}`);
-  if (data.text) textContent.push(`<strong>Text:</strong> ${data.text}`);
-  if (data.url) textContent.push(`<strong>URL:</strong> <a href="${data.url}" target="_blank">${data.url}</a>`);
+  content += `</div>`;
+  shareContent.innerHTML = content;
+}
 
-  shareContent.innerHTML = `
-    <div class="received-data">
-      <h3>Received Shared Data:</h3>
-      ${textContent.length ? `<div class="text-content">${textContent.join('<br>')}</div>` : ''}
-      ${filesHtml}
-    </div>
-  `;
+// Function to open image in fullscreen
+function openFullscreen(img) {
+  if (img.requestFullscreen) {
+    img.requestFullscreen();
+  } else if (img.webkitRequestFullscreen) { // Safari
+    img.webkitRequestFullscreen();
+  } else if (img.msRequestFullscreen) { // IE11
+    img.msRequestFullscreen();
+  }
+}
+
+// Function to format file size
+function formatFileSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+  else return (bytes / 1048576).toFixed(1) + ' MB';
 }
 
 // Listen for messages from service worker
 navigator.serviceWorker.addEventListener('message', event => {
   if (event.data.type === 'SHARE_TARGET_DATA') {
     handleSharedData(event.data.data);
+    // Revoke object URLs when they're no longer needed
+    if (event.data.data.files) {
+      window.addEventListener('unload', () => {
+        Object.values(event.data.data.files).flat().forEach(file => {
+          if (file.url && file.url.startsWith('blob:')) {
+            URL.revokeObjectURL(file.url);
+          }
+        });
+      });
+    }
   }
 });
 
