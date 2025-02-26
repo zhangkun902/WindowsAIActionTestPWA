@@ -17,42 +17,71 @@ function handleProtocolLaunch() {
 // Handle shared data
 function handleSharedData(data) {
   const shareContent = document.getElementById('share-content');
-  let content = `<div class="received-data">`;
+  const imageDisplay = document.querySelector('.image-display');
+  const mediaDisplay = document.querySelector('.media-display');
 
-  // Add title and text if present
+  // Display text content
+  let textContent = '<div class="received-data">';
   if (data.title || data.text || data.url) {
-    content += `<div class="text-content">`;
-    if (data.title) content += `<p><strong>Title:</strong> ${data.title}</p>`;
-    if (data.text) content += `<p><strong>Text:</strong> ${data.text}</p>`;
-    if (data.url) content += `<p><strong>URL:</strong> <a href="${data.url}" target="_blank">${data.url}</a></p>`;
-    content += `</div>`;
+    textContent += '<div class="text-content">';
+    if (data.title) textContent += `<p><strong>Title:</strong> ${data.title}</p>`;
+    if (data.text) textContent += `<p><strong>Text:</strong> ${data.text}</p>`;
+    if (data.url) textContent += `<p><strong>URL:</strong> <a href="${data.url}" target="_blank">${data.url}</a></p>`;
+    textContent += '</div>';
   }
+  shareContent.innerHTML = textContent + '</div>';
+
+  // Clear previous previews
+  imageDisplay.innerHTML = '';
+  mediaDisplay.innerHTML = '';
 
   // Handle shared files
   if (data.files) {
-    // Display images
+    // Display images in the dedicated image preview area
     if (data.files.images?.length) {
-      content += `
-        <div class="files-section">
-          <h4>Shared Images</h4>
-          <div class="image-grid">
-            ${data.files.images.map(file => `
-              <div class="image-wrapper">
-                <img src="${file.url}" alt="${file.name}" onClick="openFullscreen(this)">
-                <div class="file-info">
-                  <span class="file-name">${file.name}</span>
-                  <span class="file-size">${formatFileSize(file.size)}</span>
-                </div>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      `;
+      imageDisplay.innerHTML = data.files.images.map(file => `
+        <img src="${file.url}" alt="${file.name}" onClick="openFullscreen(this)" 
+             title="${file.name} (${formatFileSize(file.size)})">
+      `).join('');
     }
 
-    // Display documents
+    // Display media files in the dedicated media preview area
+    if (data.files.media?.length) {
+      mediaDisplay.innerHTML = data.files.media.map(file => {
+        if (file.type.startsWith('video/')) {
+          return `
+            <div class="media-wrapper">
+              <video controls>
+                <source src="${file.url}" type="${file.type}">
+                Your browser does not support video playback.
+              </video>
+              <div class="file-info">
+                <span class="file-name">${file.name}</span>
+                <span class="file-size">${formatFileSize(file.size)}</span>
+              </div>
+            </div>
+          `;
+        } else if (file.type.startsWith('audio/')) {
+          return `
+            <div class="media-wrapper audio">
+              <audio controls>
+                <source src="${file.url}" type="${file.type}">
+                Your browser does not support audio playback.
+              </audio>
+              <div class="file-info">
+                <span class="file-name">${file.name}</span>
+                <span class="file-size">${formatFileSize(file.size)}</span>
+              </div>
+            </div>
+          `;
+        }
+        return '';
+      }).join('');
+    }
+
+    // Display documents in the text content area
     if (data.files.documents?.length) {
-      content += `
+      shareContent.innerHTML += `
         <div class="files-section">
           <h4>Shared Documents</h4>
           <div class="document-list">
@@ -67,51 +96,7 @@ function handleSharedData(data) {
         </div>
       `;
     }
-
-    // Display media files
-    if (data.files.media?.length) {
-      content += `
-        <div class="files-section">
-          <h4>Shared Media</h4>
-          <div class="media-grid">
-            ${data.files.media.map(file => {
-              if (file.type.startsWith('video/')) {
-                return `
-                  <div class="media-wrapper">
-                    <video controls>
-                      <source src="${file.url}" type="${file.type}">
-                      Your browser does not support video playback.
-                    </video>
-                    <div class="file-info">
-                      <span class="file-name">${file.name}</span>
-                      <span class="file-size">${formatFileSize(file.size)}</span>
-                    </div>
-                  </div>
-                `;
-              } else if (file.type.startsWith('audio/')) {
-                return `
-                  <div class="media-wrapper audio">
-                    <audio controls>
-                      <source src="${file.url}" type="${file.type}">
-                      Your browser does not support audio playback.
-                    </audio>
-                    <div class="file-info">
-                      <span class="file-name">${file.name}</span>
-                      <span class="file-size">${formatFileSize(file.size)}</span>
-                    </div>
-                  </div>
-                `;
-              }
-              return '';
-            }).join('')}
-          </div>
-        </div>
-      `;
-    }
   }
-
-  content += `</div>`;
-  shareContent.innerHTML = content;
 }
 
 // Function to open image in fullscreen
