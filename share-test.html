@@ -32,6 +32,10 @@
         button:hover {
             background: #1976D2;
         }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
         pre {
             background: #f5f5f5;
             padding: 1rem;
@@ -46,6 +50,34 @@
             margin: 1rem 0;
             display: none;
         }
+        .share-section {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+        .file-inputs {
+            display: grid;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .input-group {
+            display: grid;
+            gap: 0.5rem;
+        }
+        .input-group label {
+            font-weight: 500;
+            color: #1976D2;
+        }
+        .input-group input[type="file"] {
+            padding: 0.5rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            background: #f8f9fa;
+        }
+        h3 {
+            color: #1976D2;
+            margin-bottom: 1rem;
+        }
     </style>
 </head>
 <body>
@@ -53,10 +85,39 @@
     <div class="card">
         <h2>Share Options</h2>
         <p>Click the buttons below to share different types of content to your PWA:</p>
-        <button onclick="shareText()">Share Text</button>
-        <button onclick="shareLink()">Share Link</button>
-        <button onclick="shareTextAndLink()">Share Text + Link</button>
-        <button onclick="shareCustomData()">Share Custom Data</button>
+        
+        <!-- Text and Link sharing -->
+        <div class="share-section">
+            <h3>Basic Sharing</h3>
+            <button onclick="shareText()">Share Text</button>
+            <button onclick="shareLink()">Share Link</button>
+            <button onclick="shareTextAndLink()">Share Text + Link</button>
+            <button onclick="shareCustomData()">Share Custom Data</button>
+        </div>
+
+        <!-- File sharing -->
+        <div class="share-section">
+            <h3>File Sharing</h3>
+            <div class="file-inputs">
+                <div class="input-group">
+                    <label for="imageFile">Select Image:</label>
+                    <input type="file" id="imageFile" accept="image/*" onchange="handleFileSelect('image')">
+                    <button onclick="shareFiles('image')" disabled id="shareImageBtn">Share Image</button>
+                </div>
+                
+                <div class="input-group">
+                    <label for="documentFile">Select Document:</label>
+                    <input type="file" id="documentFile" accept=".pdf,.txt,.doc,.docx" onchange="handleFileSelect('document')">
+                    <button onclick="shareFiles('document')" disabled id="shareDocumentBtn">Share Document</button>
+                </div>
+                
+                <div class="input-group">
+                    <label for="mediaFile">Select Media:</label>
+                    <input type="file" id="mediaFile" accept="video/*,audio/*" onchange="handleFileSelect('media')">
+                    <button onclick="shareFiles('media')" disabled id="shareMediaBtn">Share Media</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="error" id="error"></div>
@@ -71,14 +132,47 @@
         const statusElement = document.getElementById('status');
         const errorElement = document.getElementById('error');
         
-        // Check if Web Share API is supported
+        // Check if Web Share API and file sharing are supported
         if (navigator.share) {
-            statusElement.textContent = 'Web Share API is supported! ✅';
+            if ('canShare' in navigator) {
+                statusElement.textContent = 'Web Share API with file sharing is supported! ✅';
+            } else {
+                statusElement.textContent = 'Web Share API is supported, but file sharing might not be available ⚠️';
+            }
         } else {
             statusElement.textContent = 'Web Share API is not supported in this browser ❌';
         }
 
-        // Share handlers
+        // File sharing handlers
+        function handleFileSelect(type) {
+            const fileInput = document.getElementById(`${type}File`);
+            const shareButton = document.getElementById(`share${type.charAt(0).toUpperCase() + type.slice(1)}Btn`);
+            shareButton.disabled = !fileInput.files.length;
+        }
+
+        async function shareFiles(type) {
+            try {
+                const fileInput = document.getElementById(`${type}File`);
+                const file = fileInput.files[0];
+                if (!file) return;
+
+                const files = [file];
+                if ('canShare' in navigator && navigator.canShare({ files })) {
+                    await navigator.share({
+                        files,
+                        title: `Shared ${type}`,
+                        text: `Sharing a ${type} file: ${file.name}`
+                    });
+                    showSuccess(`${type} shared successfully!`);
+                } else {
+                    throw new Error(`File sharing not supported for ${type} files`);
+                }
+            } catch (err) {
+                showError(err);
+            }
+        }
+
+        // Basic share handlers
         async function shareText() {
             try {
                 await navigator.share({
@@ -149,7 +243,11 @@
             statusElement.textContent = message;
             setTimeout(() => {
                 if (navigator.share) {
-                    statusElement.textContent = 'Web Share API is supported! ✅';
+                    if ('canShare' in navigator) {
+                        statusElement.textContent = 'Web Share API with file sharing is supported! ✅';
+                    } else {
+                        statusElement.textContent = 'Web Share API is supported, but file sharing might not be available ⚠️';
+                    }
                 }
             }, 3000);
         }
