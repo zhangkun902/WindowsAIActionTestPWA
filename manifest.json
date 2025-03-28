@@ -38,7 +38,7 @@
       "files": [
         {
           "name": "media",
-          "accept": ["windowsAction"]
+          "accept": ["*"]
         }
       ]
     }
