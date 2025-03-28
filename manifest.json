@@ -38,12 +38,9 @@
       "files": [
         {
           "name": "media",
-          "accept": ["image/*", "video/*", "audio/*", ".pdf", ".txt", ".doc", ".docx"]
+          "accept": [".action"]
         }
       ]
     }
-  },
-  "launch_handler": {
-    "client_mode": "navigate-existing"
   }
 }
