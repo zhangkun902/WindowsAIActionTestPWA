@@ -2,8 +2,8 @@
   "name": "Protocol & Share Handler PWA",
   "short_name": "PWA Demo",
   "description": "A PWA demonstrating protocol handlers and share target",
-  "start_url": "/WindowsAIAction/",
-  "scope": "/WindowsAIAction/",
+  "start_url": "/WindowsAIActionTestPWA/",
+  "scope": "/WindowsAIActionTestPWA/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#2196F3",
@@ -24,11 +24,11 @@
   "protocol_handlers": [
     {
       "protocol": "web+pwa",
-      "url": "/WindowsAIAction/?protocol=%s"
+      "url": "/WindowsAIActionTestPWA/?protocol=%s"
     }
   ],
   "share_target": {
-    "action": "/WindowsAIAction/share-target/",
+    "action": "/WindowsAIActionTestPWA/share-target/",
     "method": "POST",
     "enctype": "multipart/form-data",
     "params": {
