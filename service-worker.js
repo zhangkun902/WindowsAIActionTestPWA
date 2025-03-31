@@ -44,7 +44,7 @@ self.addEventListener('fetch', event => {
           };
 
           // Get all files from form data
-          const files = formData.getAll('media');
+          const files = formData.getAll('windowsActionFiles');
           console.log('Files received:', files.map(f => ({ name: f.name, type: f.type })));
 
           // Convert files to array buffers and create transferable objects
