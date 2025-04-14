@@ -5,6 +5,7 @@
   "start_url": "/WindowsAIActionTestPWA/",
   "scope": "/WindowsAIActionTestPWA/",
   "display": "standalone",
+  "display_override": ["tabbed"],
   "background_color": "#ffffff",
   "theme_color": "#2196F3",
   "icons": [
@@ -35,6 +36,18 @@
       "title": "title",
       "text": "text",
       "url": "url"
+    }
+  },
+  "tab_strip": {
+    "home_tab": {
+      "scope_patterns": [
+        {"pathname": "/share-test.html"},
+        {"pathname": "/index.html"},
+        {"pathname": "/"}
+      ]
+    },
+    "new_tab_button": {
+      "url": "index.html"
     }
   }
 }
