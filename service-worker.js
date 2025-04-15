@@ -42,6 +42,10 @@ self.addEventListener('fetch', event => {
             text: formData.get('text') || '',
             url: formData.get('url') || ''
           };
+          console.log('Text data received:');
+          console.log('title:', data.title);
+          console.log('text:', data.text);
+          console.log('url:', data.url);
 
           // Get all files from form data
           const files = formData.getAll('windowsActionFiles');
