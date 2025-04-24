@@ -45,14 +45,9 @@ async function handleSharedFiles(fileData) {
         
           const img = new window.Image();
           img.onload = () => {
-            imageCanvas.width = img.width;
-            imageCanvas.height = img.height;
-            const ctx = imageCanvas.getContext('2d');
-            ctx.clearRect(0, 0, img.width, img.height);
-            ctx.drawImage(img, 0, 0, img.width, img.height);
-            imageCanvas.dataset.rotation = "0";
-            imageCanvas.dataset.brightness = "1";
-            imageCanvas.dataset.filename = file.name.replace(/\.[^.]+$/, '');
+            if (typeof window.setImageEditorImage === "function") {
+              window.setImageEditorImage(fileURL, file.name.replace(/\.[^.]+$/, ''));
+            }
           };
           img.src = fileURL;
         
@@ -184,11 +179,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const cropBtn = document.getElementById('crop-btn');
   const downloadImgBtn = document.getElementById('download-img-btn');
 
+  let currentImageDataUrl = null;
   let currentRotation = 0;
   let currentBrightness = 1;
 
   function redrawImageOnCanvas() {
-    if (!imageCanvas || !imageCanvas.dataset.src) return;
+    if (!imageCanvas || !currentImageDataUrl) return;
     const img = new window.Image();
     img.onload = () => {
       // Set canvas size based on rotation
@@ -211,7 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.drawImage(img, -w / 2, -h / 2, w, h);
       ctx.restore();
     };
-    img.src = imageCanvas.dataset.src;
+    img.src = currentImageDataUrl;
   }
 
   if (rotateLeftBtn) rotateLeftBtn.onclick = () => {
@@ -227,7 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
     redrawImageOnCanvas();
   };
   if (cropBtn) cropBtn.onclick = () => {
-    if (!imageCanvas) return;
+    if (!imageCanvas || !currentImageDataUrl) return;
     const img = new window.Image();
     img.onload = () => {
       const minSide = Math.min(img.width, img.height);
@@ -238,12 +234,12 @@ document.addEventListener('DOMContentLoaded', () => {
       tempCanvas.height = minSide;
       const ctx = tempCanvas.getContext('2d');
       ctx.drawImage(img, sx, sy, minSide, minSide, 0, 0, minSide, minSide);
-      imageCanvas.dataset.src = tempCanvas.toDataURL('image/png');
+      currentImageDataUrl = tempCanvas.toDataURL('image/png');
       currentRotation = 0;
       currentBrightness = 1;
       redrawImageOnCanvas();
     };
-    img.src = imageCanvas.dataset.src;
+    img.src = currentImageDataUrl;
   };
   if (downloadImgBtn) downloadImgBtn.onclick = () => {
     if (!imageCanvas) return;
@@ -253,14 +249,14 @@ document.addEventListener('DOMContentLoaded', () => {
     link.click();
   };
 
-  // When a new image is loaded, store its src in dataset and reset transforms
-  if (imageCanvas) {
-    const origDrawImage = imageCanvas.getContext('2d').drawImage;
-    imageCanvas.addEventListener('load-image', function (e) {
-      imageCanvas.dataset.src = e.detail.src;
-      currentRotation = 0;
-      currentBrightness = 1;
-      redrawImageOnCanvas();
-    });
-  }
+  // When a new image is loaded, store its src in variable and reset transforms
+  window.setImageEditorImage = function(dataUrl, filename) {
+    currentImageDataUrl = dataUrl;
+    currentRotation = 0;
+    currentBrightness = 1;
+    if (imageCanvas) {
+      imageCanvas.dataset.filename = filename || 'image';
+    }
+    redrawImageOnCanvas();
+  };
 });
