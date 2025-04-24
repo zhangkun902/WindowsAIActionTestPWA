@@ -222,25 +222,92 @@ document.addEventListener('DOMContentLoaded', () => {
     currentBrightness = currentBrightness >= 2 ? 0.5 : currentBrightness + 0.5;
     redrawImageOnCanvas();
   };
+  // Interactive crop mode
+  let cropMode = false;
+  let cropStart = null;
+  let cropEnd = null;
+
   if (cropBtn) cropBtn.onclick = () => {
     if (!imageCanvas || !currentImageDataUrl) return;
-    const img = new window.Image();
-    img.onload = () => {
-      const minSide = Math.min(img.width, img.height);
-      const sx = (img.width - minSide) / 2;
-      const sy = (img.height - minSide) / 2;
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = minSide;
-      tempCanvas.height = minSide;
-      const ctx = tempCanvas.getContext('2d');
-      ctx.drawImage(img, sx, sy, minSide, minSide, 0, 0, minSide, minSide);
-      currentImageDataUrl = tempCanvas.toDataURL('image/png');
-      currentRotation = 0;
-      currentBrightness = 1;
+    cropMode = !cropMode;
+    if (cropMode) {
+      cropBtn.textContent = "✅";
+      imageCanvas.style.cursor = "crosshair";
+    } else {
+      cropBtn.textContent = "✂️";
+      imageCanvas.style.cursor = "";
+      cropStart = null;
+      cropEnd = null;
       redrawImageOnCanvas();
-    };
-    img.src = currentImageDataUrl;
+    }
   };
+
+  // Canvas crop interaction
+  if (imageCanvas) {
+    imageCanvas.onmousedown = (e) => {
+      if (!cropMode) return;
+      const rect = imageCanvas.getBoundingClientRect();
+      cropStart = {
+        x: Math.round((e.clientX - rect.left) * (imageCanvas.width / rect.width)),
+        y: Math.round((e.clientY - rect.top) * (imageCanvas.height / rect.height))
+      };
+      cropEnd = null;
+    };
+    imageCanvas.onmousemove = (e) => {
+      if (!cropMode || !cropStart) return;
+      const rect = imageCanvas.getBoundingClientRect();
+      cropEnd = {
+        x: Math.round((e.clientX - rect.left) * (imageCanvas.width / rect.width)),
+        y: Math.round((e.clientY - rect.top) * (imageCanvas.height / rect.height))
+      };
+      // Draw overlay
+      redrawImageOnCanvas();
+      const ctx = imageCanvas.getContext('2d');
+      ctx.save();
+      ctx.strokeStyle = "#2196F3";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 4]);
+      const x = Math.min(cropStart.x, cropEnd.x);
+      const y = Math.min(cropStart.y, cropEnd.y);
+      const w = Math.abs(cropEnd.x - cropStart.x);
+      const h = Math.abs(cropEnd.y - cropStart.y);
+      ctx.strokeRect(x, y, w, h);
+      ctx.restore();
+    };
+    imageCanvas.onmouseup = (e) => {
+      if (!cropMode || !cropStart) return;
+      const rect = imageCanvas.getBoundingClientRect();
+      cropEnd = {
+        x: Math.round((e.clientX - rect.left) * (imageCanvas.width / rect.width)),
+        y: Math.round((e.clientY - rect.top) * (imageCanvas.height / rect.height))
+      };
+      // Perform crop
+      const x = Math.min(cropStart.x, cropEnd.x);
+      const y = Math.min(cropStart.y, cropEnd.y);
+      const w = Math.abs(cropEnd.x - cropStart.x);
+      const h = Math.abs(cropEnd.y - cropStart.y);
+      if (w > 0 && h > 0) {
+        const img = new window.Image();
+        img.onload = () => {
+          const tempCanvas = document.createElement('canvas');
+          tempCanvas.width = w;
+          tempCanvas.height = h;
+          const ctx = tempCanvas.getContext('2d');
+          ctx.drawImage(img, x, y, w, h, 0, 0, w, h);
+          currentImageDataUrl = tempCanvas.toDataURL('image/png');
+          currentRotation = 0;
+          currentBrightness = 1;
+          cropMode = false;
+          cropBtn.textContent = "✂️";
+          imageCanvas.style.cursor = "";
+          cropStart = null;
+          cropEnd = null;
+          redrawImageOnCanvas();
+        };
+        img.src = currentImageDataUrl;
+      }
+    };
+  }
   if (downloadImgBtn) downloadImgBtn.onclick = () => {
     if (!imageCanvas) return;
     const link = document.createElement('a');
