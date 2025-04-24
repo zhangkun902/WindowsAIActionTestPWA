@@ -28,7 +28,14 @@
           <div class="preview-container">
             <div id="image-preview" class="preview-section">
               <h4>Image Preview</h4>
-              <div class="image-display"></div>
+              <div class="image-editor-toolbar">
+                <button id="rotate-left-btn" title="Rotate Left">⟲</button>
+                <button id="rotate-right-btn" title="Rotate Right">⟳</button>
+                <button id="crop-btn" title="Crop">✂️</button>
+                <button id="brightness-btn" title="Brightness">☀️</button>
+                <button id="download-img-btn" title="Download">⬇️</button>
+              </div>
+              <canvas id="image-editor-canvas" class="image-editor-canvas" style="display:none;"></canvas>
             </div>
             <div id="media-preview" class="preview-section">
               <h4>Video Preview</h4>

@@ -39,26 +39,25 @@ async function handleSharedFiles(fileData) {
         console.log('Created blob URL for:', file.name, fileURL);
 
         if (file.type.startsWith('image/')) {
-          const imgContainer = document.createElement('div');
-          imgContainer.className = 'image-container';
-
-          const img = document.createElement('img');
+          // Image editor: draw image to canvas and show toolbar
+          const imageToolbar = document.querySelector('.image-editor-toolbar');
+          const imageCanvas = document.getElementById('image-editor-canvas');
+          if (imageToolbar) imageToolbar.style.display = '';
+          if (imageCanvas) imageCanvas.style.display = '';
+        
+          const img = new window.Image();
+          img.onload = () => {
+            imageCanvas.width = img.width;
+            imageCanvas.height = img.height;
+            const ctx = imageCanvas.getContext('2d');
+            ctx.clearRect(0, 0, img.width, img.height);
+            ctx.drawImage(img, 0, 0, img.width, img.height);
+            imageCanvas.dataset.rotation = "0";
+            imageCanvas.dataset.brightness = "1";
+            imageCanvas.dataset.filename = file.name.replace(/\.[^.]+$/, '');
+          };
           img.src = fileURL;
-          img.alt = file.name;
-          img.title = file.name;
-          img.onclick = () => openFullscreen(img);
-
-          const info = document.createElement('div');
-          info.className = 'image-info';
-          info.innerHTML = `
-            <span class="file-name">${file.name}</span>
-            <span class="file-size">${formatFileSize(file.buffer.byteLength)}</span>
-          `;
-
-          imgContainer.appendChild(img);
-          imgContainer.appendChild(info);
-          imageDisplay.appendChild(imgContainer);
-
+        
         } else if (file.type.startsWith('video/')) {
           const videoContainer = document.createElement('div');
           videoContainer.className = 'media-wrapper';
@@ -178,4 +177,92 @@ if ('registerProtocolHandler' in navigator) {
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
   handleProtocolLaunch();
+
+  // Image editor toolbar logic
+  const imageCanvas = document.getElementById('image-editor-canvas');
+  const rotateLeftBtn = document.getElementById('rotate-left-btn');
+  const rotateRightBtn = document.getElementById('rotate-right-btn');
+  const brightnessBtn = document.getElementById('brightness-btn');
+  const cropBtn = document.getElementById('crop-btn');
+  const downloadImgBtn = document.getElementById('download-img-btn');
+
+  let currentRotation = 0;
+  let currentBrightness = 1;
+
+  function redrawImageOnCanvas() {
+    if (!imageCanvas || !imageCanvas.dataset.src) return;
+    const img = new window.Image();
+    img.onload = () => {
+      // Set canvas size based on rotation
+      let w = img.width;
+      let h = img.height;
+      let angle = (currentRotation % 360 + 360) % 360;
+      if (angle === 90 || angle === 270) {
+        imageCanvas.width = h;
+        imageCanvas.height = w;
+      } else {
+        imageCanvas.width = w;
+        imageCanvas.height = h;
+      }
+      const ctx = imageCanvas.getContext('2d');
+      ctx.save();
+      ctx.clearRect(0, 0, imageCanvas.width, imageCanvas.height);
+      ctx.translate(imageCanvas.width / 2, imageCanvas.height / 2);
+      ctx.rotate((currentRotation * Math.PI) / 180);
+      ctx.filter = `brightness(${currentBrightness})`;
+      ctx.drawImage(img, -w / 2, -h / 2, w, h);
+      ctx.restore();
+    };
+    img.src = imageCanvas.dataset.src;
+  }
+
+  if (rotateLeftBtn) rotateLeftBtn.onclick = () => {
+    currentRotation -= 90;
+    redrawImageOnCanvas();
+  };
+  if (rotateRightBtn) rotateRightBtn.onclick = () => {
+    currentRotation += 90;
+    redrawImageOnCanvas();
+  };
+  if (brightnessBtn) brightnessBtn.onclick = () => {
+    currentBrightness = currentBrightness >= 2 ? 0.5 : currentBrightness + 0.5;
+    redrawImageOnCanvas();
+  };
+  if (cropBtn) cropBtn.onclick = () => {
+    if (!imageCanvas) return;
+    const img = new window.Image();
+    img.onload = () => {
+      const minSide = Math.min(img.width, img.height);
+      const sx = (img.width - minSide) / 2;
+      const sy = (img.height - minSide) / 2;
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = minSide;
+      tempCanvas.height = minSide;
+      const ctx = tempCanvas.getContext('2d');
+      ctx.drawImage(img, sx, sy, minSide, minSide, 0, 0, minSide, minSide);
+      imageCanvas.dataset.src = tempCanvas.toDataURL('image/png');
+      currentRotation = 0;
+      currentBrightness = 1;
+      redrawImageOnCanvas();
+    };
+    img.src = imageCanvas.dataset.src;
+  };
+  if (downloadImgBtn) downloadImgBtn.onclick = () => {
+    if (!imageCanvas) return;
+    const link = document.createElement('a');
+    link.download = (imageCanvas.dataset.filename || 'image') + '-edited.png';
+    link.href = imageCanvas.toDataURL('image/png');
+    link.click();
+  };
+
+  // When a new image is loaded, store its src in dataset and reset transforms
+  if (imageCanvas) {
+    const origDrawImage = imageCanvas.getContext('2d').drawImage;
+    imageCanvas.addEventListener('load-image', function (e) {
+      imageCanvas.dataset.src = e.detail.src;
+      currentRotation = 0;
+      currentBrightness = 1;
+      redrawImageOnCanvas();
+    });
+  }
 });
