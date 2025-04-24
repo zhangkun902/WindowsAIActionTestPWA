@@ -17,16 +17,14 @@ function handleProtocolLaunch() {
 // Handle files from share target API
 async function handleSharedFiles(fileData) {
   try {
-    const imageDisplay = document.querySelector('.image-display');
     const mediaDisplay = document.querySelector('.media-display');
 
-    if (!imageDisplay || !mediaDisplay) {
+    if (!mediaDisplay) {
       console.error('Preview elements not found');
       return;
     }
 
     // Clear previous content
-    imageDisplay.innerHTML = '';
     mediaDisplay.innerHTML = '';
 
     console.log('Handling shared files:', fileData);
