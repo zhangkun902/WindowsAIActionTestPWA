@@ -27,7 +27,7 @@
   ],
   "protocol_handlers": [
     {
-      "protocol": "dweb+action",
+      "protocol": "web+pwa",
       "url": "/WindowsAIActionTestPWA/?protocol=%s"
     }
   ],
