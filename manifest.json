@@ -27,7 +27,7 @@
   ],
   "protocol_handlers": [
     {
-      "protocol": "mailto",
+      "protocol": "dweb+action",
       "url": "/WindowsAIActionTestPWA/?protocol=%s"
     }
   ],
