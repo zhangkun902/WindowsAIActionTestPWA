@@ -18,6 +18,7 @@ function handleProtocolLaunch() {
 async function handleSharedFiles(fileData) {
   try {
     const mediaDisplay = document.querySelector('.media-display');
+    const documentDisplay = document.querySelector('.document-display');
 
     if (!mediaDisplay) {
       console.error('Preview elements not found');
@@ -26,6 +27,7 @@ async function handleSharedFiles(fileData) {
 
     // Clear previous content
     mediaDisplay.innerHTML = '';
+    documentDisplay.innerHTML = '';
 
     console.log('Handling shared files:', fileData);
 
@@ -69,23 +71,23 @@ videoContainer.appendChild(video);
 videoContainer.appendChild(info);
 mediaDisplay.appendChild(videoContainer);
 } else if (file.type === 'application/pdf') {
-const docContainer = document.createElement('div');
-docContainer.className = 'media-wrapper';
-
-const iframe = document.createElement('iframe');
-iframe.src = fileURL;
-iframe.className = 'pdf-viewer';
-
-const info = document.createElement('div');
-info.className = 'file-info';
-info.innerHTML = `
-  <span class="file-name">${file.name}</span>
-  <span class="file-size">${formatFileSize(file.buffer.byteLength)}</span>
-`;
-
-docContainer.appendChild(iframe);
-docContainer.appendChild(info);
-mediaDisplay.appendChild(docContainer);
+  const docContainer = document.createElement('div');
+  docContainer.className = 'media-wrapper';
+  
+  const iframe = document.createElement('iframe');
+  iframe.src = fileURL;
+  iframe.className = 'pdf-viewer';
+  
+  const info = document.createElement('div');
+  info.className = 'file-info';
+  info.innerHTML = `
+    <span class="file-name">${file.name}</span>
+    <span class="file-size">${formatFileSize(file.buffer.byteLength)}</span>
+  `;
+  
+  docContainer.appendChild(iframe);
+  docContainer.appendChild(info);
+  documentDisplay.appendChild(docContainer);
 } else if (file.type === 'text/plain') {
 const docContainer = document.createElement('div');
 docContainer.className = 'media-wrapper';
@@ -105,7 +107,7 @@ reader.onload = function(e) {
   
   docContainer.appendChild(pre);
   docContainer.appendChild(info);
-  mediaDisplay.appendChild(docContainer);
+  documentDisplay.appendChild(docContainer);
 };
 reader.readAsText(blob);
 } else if (file.type === 'application/msword' ||
@@ -132,7 +134,7 @@ info.innerHTML = `
 
 docContainer.appendChild(downloadBtn);
 docContainer.appendChild(info);
-mediaDisplay.appendChild(docContainer);
+documentDisplay.appendChild(docContainer);
         }
       } catch (error) {
         console.error('Error processing file:', file.name, error);

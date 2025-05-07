@@ -30,6 +30,17 @@
   box-sizing: border-box;
 }
 
+.preview-container.vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.preview-container.vertical .preview-section {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
 /* Document preview styles */
 .pdf-viewer {
   width: 100%;
