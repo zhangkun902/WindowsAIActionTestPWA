@@ -65,10 +65,74 @@ async function handleSharedFiles(fileData) {
             <span class="file-name">${file.name}</span>
             <span class="file-size">${formatFileSize(file.buffer.byteLength)}</span>
           `;
+videoContainer.appendChild(video);
+videoContainer.appendChild(info);
+mediaDisplay.appendChild(videoContainer);
+} else if (file.type === 'application/pdf') {
+const docContainer = document.createElement('div');
+docContainer.className = 'media-wrapper';
 
-          videoContainer.appendChild(video);
-          videoContainer.appendChild(info);
-          mediaDisplay.appendChild(videoContainer);
+const iframe = document.createElement('iframe');
+iframe.src = fileURL;
+iframe.className = 'pdf-viewer';
+
+const info = document.createElement('div');
+info.className = 'file-info';
+info.innerHTML = `
+  <span class="file-name">${file.name}</span>
+  <span class="file-size">${formatFileSize(file.buffer.byteLength)}</span>
+`;
+
+docContainer.appendChild(iframe);
+docContainer.appendChild(info);
+mediaDisplay.appendChild(docContainer);
+} else if (file.type === 'text/plain') {
+const docContainer = document.createElement('div');
+docContainer.className = 'media-wrapper';
+
+const reader = new FileReader();
+reader.onload = function(e) {
+  const pre = document.createElement('pre');
+  pre.className = 'text-content';
+  pre.textContent = e.target.result;
+  
+  const info = document.createElement('div');
+  info.className = 'file-info';
+  info.innerHTML = `
+    <span class="file-name">${file.name}</span>
+    <span class="file-size">${formatFileSize(file.buffer.byteLength)}</span>
+  `;
+  
+  docContainer.appendChild(pre);
+  docContainer.appendChild(info);
+  mediaDisplay.appendChild(docContainer);
+};
+reader.readAsText(blob);
+} else if (file.type === 'application/msword' ||
+        file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+const docContainer = document.createElement('div');
+docContainer.className = 'media-wrapper';
+
+const downloadBtn = document.createElement('a');
+downloadBtn.href = fileURL;
+downloadBtn.download = file.name;
+downloadBtn.className = 'download-button';
+downloadBtn.innerHTML = `
+  <span class="download-icon">⬇️</span>
+  <span>Download ${file.name}</span>
+`;
+
+const info = document.createElement('div');
+info.className = 'file-info';
+info.innerHTML = `
+  <span class="file-name">${file.name}</span>
+  <span class="file-size">${formatFileSize(file.buffer.byteLength)}</span>
+  <span class="file-note">Word documents can't be previewed directly. Please download to view.</span>
+`;
+
+docContainer.appendChild(downloadBtn);
+docContainer.appendChild(info);
+mediaDisplay.appendChild(docContainer);
         }
       } catch (error) {
         console.error('Error processing file:', file.name, error);
