@@ -30,6 +30,18 @@
   box-sizing: border-box;
 }
 
+.document-display .media-wrapper {
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+}
+
+.document-display .media-wrapper:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
 .preview-container.vertical {
   display: flex;
   flex-direction: column;
