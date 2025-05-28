@@ -5,7 +5,7 @@
   "start_url": "/WindowsAIActionTestPWA/",
   "scope": "/WindowsAIActionTestPWA/",
   "display": "standalone",
-  "display_override": ["tabbed"],
+  "display_override": ["window-controls-overlay"],
   "background_color": "#ffffff",
   "theme_color": "#2196F3",
   "launch_handler": {
@@ -28,7 +28,7 @@
   "protocol_handlers": [
     {
       "protocol": "web+pwa",
-      "url": "/WindowsAIActionTestPWA/?protocol=%s"
+      "url": "./?protocol=%s"
     }
   ],
   "share_target": {
