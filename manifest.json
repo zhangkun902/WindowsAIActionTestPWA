@@ -2,7 +2,7 @@
   "name": "Windows Action Sample PWA",
   "short_name": "Windows Action Sample PWA",
   "description": "A PWA demonstrating protocol handlers and share target",
-  "start_url": "/WindowsAIActionTestPWA/",
+  "start_url": "./",
   "scope": "/WindowsAIActionTestPWA/",
   "display": "standalone",
   "display_override": ["window-controls-overlay"],
