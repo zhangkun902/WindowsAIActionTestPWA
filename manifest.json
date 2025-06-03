@@ -9,9 +9,6 @@
   "display_override": ["window-controls-overlay"],
   "background_color": "#ffffff",
   "theme_color": "#2196F3",
-  "launch_handler": {
-    "client_mode": "navigate-existing"
-  },
   "icons": [
     {
       "src": "https://cdn.glitch.com/47e82a3e-e99d-4a0a-86f9-4f8bea8ede1e%2Fastronaut-icon.png?v=1587002651149",
