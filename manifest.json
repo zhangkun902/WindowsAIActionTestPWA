@@ -12,15 +12,11 @@
   "icons": [
     {
       "src": "https://cdn.glitch.com/47e82a3e-e99d-4a0a-86f9-4f8bea8ede1e%2Fastronaut-icon.png?v=1587002651149",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
+      "sizes": "192x192"
     },
     {
       "src": "https://cdn.glitch.com/47e82a3e-e99d-4a0a-86f9-4f8bea8ede1e%2Fastronaut-icon.png?v=1587002651149",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
+      "sizes": "512x512"
     }
   ],
   "protocol_handlers": [
