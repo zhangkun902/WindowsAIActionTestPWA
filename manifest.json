@@ -9,6 +9,22 @@
   "display_override": ["window-controls-overlay"],
   "background_color": "#ffffff",
   "theme_color": "#ffffff",
+  "shortcuts": [
+    {
+      "name": "Home",
+      "short_name": "Home",
+      "description": "Go to the main period tracking page",
+      "url": "/",
+      "icons": [{ "src": "icons/circle.svg", "sizes": "96x96" }]
+    },
+    {
+      "name": "About Us",
+      "short_name": "About",
+      "description": "Learn more about Cycle Tracker",
+      "url": "/about.html",
+      "icons": [{ "src": "icons/tire.svg", "sizes": "96x96" }]
+    }
+  ],
   "icons": [
     {
       "src": "favicon.ico",
