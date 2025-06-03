@@ -2,6 +2,7 @@
   "name": "Windows Action Sample PWA",
   "short_name": "Windows Action Sample PWA",
   "description": "A PWA demonstrating protocol handlers and share target",
+  "lang": "en-US",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
@@ -44,18 +45,6 @@
           "accept": ["image/*"]
         }
       ]
-    }
-  },
-  "tab_strip": {
-    "home_tab": {
-      "scope_patterns": [
-        {"pathname": "/share-test.html"},
-        {"pathname": "/index.html"},
-        {"pathname": "/"}
-      ]
-    },
-    "new_tab_button": {
-      "url": "index.html"
     }
   }
 }
