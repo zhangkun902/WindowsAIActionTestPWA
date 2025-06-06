@@ -29,6 +29,7 @@ self.addEventListener('activate', event => {
 // Fetch event - serve from cache or network
 self.addEventListener('fetch', event => {
   // Handle share target requests
+  console.log('Request method:', event.request.method);
   if (event.request.url.includes('/share-target/')) {
     event.respondWith(Response.redirect(`${BASE_PATH}/?share=true`));
     event.waitUntil(
