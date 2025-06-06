@@ -5,7 +5,8 @@ const ASSETS = [
   `${BASE_PATH}/index.html`,
   `${BASE_PATH}/styles.css`,
   `${BASE_PATH}/app.js`,
-  `${BASE_PATH}/share-test.html`
+  `${BASE_PATH}/share-test.html`,
+  `${BASE_PATH}/action-error.html`
 ];
 
 // Install event - cache assets
@@ -27,10 +28,17 @@ self.addEventListener('activate', event => {
 });
 
 // Fetch event - serve from cache or network
-self.addEventListener('fetch', event => {
+self.addEventListener('fetch', event => {  
   // Handle share target requests
   console.log('Request method:', event.request.method);
   if (event.request.url.includes('/share-target/')) {
+    // Handle GET requests by redirecting to error page
+    if (event.request.method === 'GET') {
+      event.respondWith(Response.redirect(`${BASE_PATH}/action-error.html`));
+      return;
+    }
+    
+    // Handle POST requests with existing logic
     event.respondWith(Response.redirect(`${BASE_PATH}/?share=true`));
     event.waitUntil(
       (async () => {

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA Action Error</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+        .error-container {
+            background: #fff;
+            border-radius: 8px;
+            padding: 24px;
+            margin-top: 40px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #dc3545;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+        .steps {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 4px;
+            border-left: 4px solid #007bff;
+            margin: 20px 0;
+        }
+        .steps h2 {
+            color: #007bff;
+            margin-top: 0;
+        }
+        .steps ol {
+            padding-left: 20px;
+        }
+        .steps li {
+            margin-bottom: 12px;
+        }
+        code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: Monaco, Consolas, monospace;
+        }
+        .flag-name {
+            color: #6c757d;
+            font-size: 0.9em;
+            margin-left: 8px;
+        }
+        .contact {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+            color: #6c757d;
+        }
+        .note {
+            font-style: italic;
+            margin-top: 20px;
+            color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <h1>PWA Action Error</h1>
+        <p>We apologize, but the PWA action could not be completed because the feature is currently in experimental stage.</p>
+        
+        <div class="steps">
+            <h2>To enable PWA actions, please follow these steps:</h2>
+            <ol>
+                <li>Launch Microsoft Edge Browser</li>
+                <li>Navigate to <code>edge://flags</code></li>
+                <li>Search for "App Actions"</li>
+                <li>Find the entry "Enable App Actions on Windows for web apps"
+                    <span class="flag-name">(Flag name: #edge-app-actions-on-windows-for-web-apps)</span></li>
+                <li>Change the status to "Enabled"</li>
+                <li>Click the "Restart" button in the lower right</li>
+            </ol>
+        </div>
+
+        <p class="note">After completing these steps, you can enjoy all PWA actions functionality!</p>
+        
+        <div class="contact">
+            <p>Need help? Have questions? Please contact our support team at xxxxx</p>
+        </div>
+    </div>
+</body>
+</html>
