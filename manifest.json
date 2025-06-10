@@ -30,7 +30,7 @@
   "protocol_handlers": [
     {
       "protocol": "web+pwa",
-      "url": "/WindowsAIActionTestPWA/?protocol=%s"
+      "url": "./?protocol=%s"
     }
   ],
   "share_target": {
