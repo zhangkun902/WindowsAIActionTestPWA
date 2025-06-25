@@ -1,5 +1,5 @@
 const CACHE_NAME = 'pwa-demo-v1';
-const BASE_PATH = '.';
+const BASE_PATH = '/WindowsAIActionTestPWA';
 const ASSETS = [
   `${BASE_PATH}/`,
   `${BASE_PATH}/index.html`,
@@ -27,98 +27,82 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Handle share target functionality
-async function handleShareTarget(event) {
-  try {
-    const formData = await event.request.formData();
-    
-    // Extract text data
-    const data = {
-      title: formData.get('title') || '',
-      text: formData.get('text') || '',
-      url: formData.get('url') || ''
-    };
-
-    // Get all files from form data
-    const files = data.url.toLowerCase().startsWith('web+pwa')
-      ? formData.getAll('windowsActionFiles')
-      : formData.getAll('media');
-
-    // Process files
-    const processedFiles = await Promise.all(files.map(async file => {
-      const arrayBuffer = await file.arrayBuffer();
-      return {
-        buffer: arrayBuffer,
-        type: file.type,
-        name: file.name,
-        size: file.size,
-        lastModified: file.lastModified
-      };
-    }));
-
-    // Find all open windows
-    const allClients = await self.clients.matchAll({ 
-      type: "window", 
-      includeUncontrolled: true 
-    });
-
-    // 创建传输对象
-    const transferables = processedFiles.map(file => file.buffer);
-    const messageData = {
-      type: 'SHARE_TARGET_DATA',
-      data: data,
-      files: processedFiles
-    };
-
-    if (allClients.length > 0) {
-      const client = allClients[0];
-      // Send data to the first client
-      client.postMessage(messageData, transferables);
-      // Return empty response to prevent navigation
-      return new Response(null, {
-        status: 204,
-        headers: { 'Content-Type': 'text/plain' }
-      });
-    }
-
-    // If no clients are open, redirect to main page and send data in background
-    event.waitUntil((async () => {
-      // Wait for new page to open and become available
-      await new Promise(resolve => setTimeout(resolve, 300));
-      const newClients = await self.clients.matchAll({ 
-        type: "window", 
-        includeUncontrolled: true 
-      });
-      if (newClients.length > 0) {
-        newClients[0].postMessage(messageData, transferables);
-      }
-    })());
-
-    return Response.redirect(`${BASE_PATH}/?share=true`);
-
-  } catch (error) {
-    console.error('Error processing share target:', error);
-    // return Response.redirect(`${BASE_PATH}/?share=true`);
-  }
-}
-
 // Fetch event - serve from cache or network
-self.addEventListener('fetch', event => {
-  const url = new URL(event.request.url);
-  
+self.addEventListener('fetch', event => {  
   // Handle share target requests
-  if (url.pathname.includes('/share-target/')) {
+  console.log('Request method:', event.request.method);
+  if (event.request.url.includes('/share-target/')) {
+    // Handle GET requests by redirecting to error page
     if (event.request.method === 'GET') {
-      // Handle GET requests by redirecting to error page
       event.respondWith(Response.redirect(`${BASE_PATH}/action-error.html`));
       return;
     }
     
-    if (event.request.method === 'POST') {
-      // Handle POST requests
-      event.respondWith(handleShareTarget(event));
-      return;
-    }
+    // Handle POST requests with existing logic
+    event.respondWith(Response.redirect(`${BASE_PATH}/?share=true`));
+    event.waitUntil(
+      (async () => {
+        try {
+          const formData = await event.request.formData();
+          
+          // Extract text data
+          const data = {
+            title: formData.get('title') || '',
+            text: formData.get('text') || '',
+            url: formData.get('url') || ''
+          };
+          console.log('Text data received:');
+          console.log('title:', data.title);
+          console.log('text:', data.text);
+          console.log('url:', data.url);
+
+          // Get all files from form data
+          const files = data.url.toLowerCase().startsWith('web+pwa')
+            ? formData.getAll('windowsActionFiles')
+            : formData.getAll('media');
+          console.log('Files received:', files.map(f => ({ name: f.name, type: f.type })));
+
+          // Convert files to array buffers and create transferable objects
+          const processedFiles = await Promise.all(files.map(async file => {
+            // Read the file data
+            const arrayBuffer = await file.arrayBuffer();
+            
+            return {
+              buffer: arrayBuffer,
+              type: file.type,
+              name: file.name,
+              size: file.size,
+              lastModified: file.lastModified
+            };
+          }));
+
+          // Get the client and send the data
+          const client = await self.clients.get(event.resultingClientId);
+          if (client) {
+            // Create array of transferable objects (the array buffers)
+            const transferables = processedFiles.map(file => file.buffer);
+            
+            // Send the data using structured clone algorithm with transferables
+            client.postMessage({
+              type: 'SHARE_TARGET_DATA',
+              data: data,
+              files: processedFiles
+            }, transferables);
+
+            console.log('Sent to client:', {
+              data,
+              fileCount: processedFiles.length,
+              fileTypes: processedFiles.map(f => f.type)
+            });
+          } else {
+            console.error('No client found to send the data to');
+          }
+        } catch (error) {
+          console.error('Error processing share target:', error);
+        }
+      })()
+    );
+    return;
   }
 
   // Handle normal requests

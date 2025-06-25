@@ -160,17 +160,6 @@ function handleSharedData(data) {
       textContent += '</div>';
     }
     shareContent.innerHTML = textContent + '</div>';
-    
-    // Add shared text to text editor if available
-    if (data.text) {
-      const editor = document.getElementById('text-editor-content');
-      if (editor) {
-        // Append text to existing content
-        const existingContent = editor.innerHTML;
-        const newContent = existingContent + (existingContent ? '<br><br>' : '') + data.text;
-        editor.innerHTML = newContent;
-      }
-    }
 
   } catch (error) {
     console.error('Error handling shared data:', error);
@@ -403,39 +392,4 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     redrawImageOnCanvas();
   };
-
-  // Text editor functionality
-  const boldBtn = document.getElementById('bold-btn');
-  const italicBtn = document.getElementById('italic-btn');
-  const underlineBtn = document.getElementById('underline-btn');
-  const clearFormatBtn = document.getElementById('clear-format-btn');
-  const saveBtn = document.getElementById('save-text-btn');
-  const editor = document.getElementById('text-editor-content');
-
-  // Format buttons
-  boldBtn?.addEventListener('click', () => document.execCommand('bold', false, null));
-  italicBtn?.addEventListener('click', () => document.execCommand('italic', false, null));
-  underlineBtn?.addEventListener('click', () => document.execCommand('underline', false, null));
-  
-  // Clear formatting
-  clearFormatBtn?.addEventListener('click', () => {
-    const text = editor.innerText;
-    editor.innerHTML = text;
-  });
-
-  // Save functionality
-  saveBtn?.addEventListener('click', () => {
-    try {
-      const content = editor.innerHTML;
-      const blob = new Blob([content], { type: 'text/html' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'editor-content.html';
-      link.click();
-      URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Error saving content:', error);
-    }
-  });
 });
