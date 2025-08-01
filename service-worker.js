@@ -39,7 +39,7 @@ self.addEventListener('fetch', event => {
     }
     
     // Handle POST requests with existing logic
-    // event.respondWith(Response.redirect(`${BASE_PATH}/?share=true`));
+    event.respondWith(Response.redirect(`${BASE_PATH}/?share=true`));
     event.waitUntil(
       (async () => {
         try {
