@@ -1,0 +1,222 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Download Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h2 {
+            color: #333;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .section {
+            background-color: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>WebView2 Download Testing</h1>
+    
+    <div class="section">
+        <h2>Custom Anchor Tag Download</h2>
+        <a href="./testfile.zip">Download using &lt;a download&gt;</a>
+    </div>
+    
+    <div class="section">
+        <h2>Basic Blob Downloads</h2>
+        <button onclick="downloadLogsFileMock()">Download Original Log File</button>
+        <button onclick="downloadBlob('text/plain', '.log')">Download .log File</button>
+        <button onclick="downloadBlob('text/plain', '.txt')">Download .txt File</button>
+        <button onclick="downloadBlob('application/json', '.json')">Download .json File</button>
+        <button onclick="downloadBlob('text/csv', '.csv')">Download .csv File</button>
+        <button onclick="downloadBlob('text/xml', '.xml')">Download .xml File</button>
+    </div>
+    
+    <div class="section">
+        <h2>Document Blob Downloads</h2>
+        <button onclick="downloadBlob('application/pdf', '.pdf')">Download .pdf File</button>
+        <button onclick="downloadBlob('application/msword', '.doc')">Download .doc File</button>
+        <button onclick="downloadBlob('application/vnd.openxmlformats-officedocument.wordprocessingml.document', '.docx')">Download .docx File</button>
+    </div>
+    
+    <div class="section">
+        <h2>Media Blob Downloads</h2>
+        <button onclick="downloadBlob('image/jpeg', '.jpg')">Download .jpg File</button>
+        <button onclick="downloadBlob('image/png', '.png')">Download .png File</button>
+        <button onclick="downloadBlob('audio/mpeg', '.mp3')">Download .mp3 File</button>
+        <button onclick="downloadBlob('video/mp4', '.mp4')">Download .mp4 File</button>
+    </div>
+    
+    <div class="section">
+        <h2>Binary Blob Downloads</h2>
+        <button onclick="downloadBlob('application/octet-stream', '.bin')">Download .bin File</button>
+        <button onclick="downloadBlob('application/zip', '.zip')">Download .zip File</button>
+        <button onclick="downloadLargeBlob()">Download Large Blob (5MB)</button>
+        <button onclick="download1MbBlob()">Download Large Blob (1MB)</button>
+    </div>
+    
+<script>
+function downloadLogsFileMock() {
+  // mock logsFile 对象
+  const logsFile = {
+    content: "Mock log file content\nLine 2\nLine 3",
+    fileName: "mock_logs.txt"
+  };
+  
+  downloadFileWithBlob(logsFile, "text/plain;charset=utf-8");
+}
+
+function downloadFileWithBlob(logsFile, mimeType) {
+  let downloadUrl = "";
+  try {
+    let blob;
+    if (typeof logsFile.content === "string") {
+      blob = new Blob([logsFile.content], { type: mimeType });
+    } else {
+      blob = logsFile.content;
+    }
+    downloadUrl = URL.createObjectURL(blob);
+
+    const anchor = document.createElement("a");
+    anchor.setAttribute("href", downloadUrl);
+    anchor.setAttribute("download", logsFile.fileName);
+    anchor.click();
+    anchor.remove();
+  } catch (err) {
+    console.error("Failed to download file", err);
+    alert("Failed to download file: " + err.message); // 添加错误提示
+  }
+  if (downloadUrl && URL.revokeObjectURL) {
+    URL.revokeObjectURL(downloadUrl);
+  }
+}
+
+function downloadBlob(mimeType, extension) {
+  // Create sample content based on file type
+  let content = "This is a sample " + extension + " file generated for testing WebView2 download functionality.\n";
+  content += "Generated on: " + new Date().toISOString() + "\n";
+  content += "MIME Type: " + mimeType + "\n\n";
+  
+  // Add some mock data based on file type
+  if (extension === '.log') {
+    content += "[INFO] 2025-09-09T10:15:32.453Z - Application started\n";
+    content += "[INFO] 2025-09-09T10:15:32.578Z - WebView2 controller initialized\n";
+    content += "[DEBUG] 2025-09-09T10:15:32.699Z - User agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)\n";
+    content += "[INFO] 2025-09-09T10:15:33.123Z - Navigation completed to https://example.com\n";
+    content += "[WARN] 2025-09-09T10:15:34.256Z - Failed to load resource: net::ERR_FAILED\n";
+    content += "[ERROR] 2025-09-09T10:15:35.432Z - Exception in script execution: TypeError\n";
+    content += "[INFO] 2025-09-09T10:15:38.765Z - WebView2 controller shutdown\n";
+  } else if (extension === '.json') {
+    content = JSON.stringify({
+      "name": "WebView2 Test",
+      "version": "1.0.0",
+      "description": "Test file for WebView2 download functionality",
+      "timestamp": new Date().toISOString(),
+      "properties": {
+        "mimeType": mimeType,
+        "fileSize": "small",
+        "testCase": "blob-download"
+      }
+    }, null, 2);
+  } else if (extension === '.csv') {
+    content = "id,name,date,value\n";
+    content += "1,Item 1,2025-09-09,42.5\n";
+    content += "2,Item 2,2025-09-08,13.7\n";
+    content += "3,Item 3,2025-09-07,85.2\n";
+    content += "4,Item 4,2025-09-06,23.1\n";
+  } else if (extension === '.xml') {
+    content = '<?xml version="1.0" encoding="UTF-8"?>\n';
+    content += '<root>\n';
+    content += '  <test>\n';
+    content += '    <name>WebView2 Download Test</name>\n';
+    content += '    <date>' + new Date().toISOString() + '</date>\n';
+    content += '    <mimetype>' + mimeType + '</mimetype>\n';
+    content += '  </test>\n';
+    content += '</root>';
+  }
+  
+  const filename = "webview2-test" + extension;
+  
+  // 先创建 Blob 对象
+  const blob = new Blob([content], { type: mimeType });
+  
+  // 创建 logsFile 对象，content 属性直接是 Blob
+  const logsFileObj = {
+    content: blob,
+    fileName: filename
+  };
+  
+  downloadFileWithBlob(logsFileObj, mimeType);
+}
+
+function downloadLargeBlob() {
+  // Create a 5MB random data blob
+  const size = 5 * 1024 * 1024; // 5MB
+  const buffer = new ArrayBuffer(size);
+  const view = new Uint8Array(buffer);
+  
+  // Fill with random data
+  for (let i = 0; i < size; i++) {
+    view[i] = Math.floor(Math.random() * 256);
+  }
+  
+  const blob = new Blob([buffer], { type: 'application/octet-stream' });
+  
+  const logsFileObj = {
+    content: blob,
+    fileName: "large-file-5mb.bin"
+  };
+  
+  downloadFileWithBlob(logsFileObj, 'application/octet-stream');
+}
+
+function download1MbBlob() {
+  // Create a 1MB random data blob
+  const size = 1024 * 1024; // 5MB
+  const buffer = new ArrayBuffer(size);
+  const view = new Uint8Array(buffer);
+  
+  // Fill with random data
+  for (let i = 0; i < size; i++) {
+    view[i] = Math.floor(Math.random() * 256);
+  }
+  
+  const blob = new Blob([buffer], { type: 'application/octet-stream' });
+  
+  const logsFileObj = {
+    content: blob,
+    fileName: "1mb.bin"
+  };
+  
+  downloadFileWithBlob(logsFileObj, 'application/octet-stream');
+}
+</script>
+</body>
+</html>
