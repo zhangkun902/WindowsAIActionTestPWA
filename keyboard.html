@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+		<meta charset="UTF-8">
+
+		<title>keyboard test</title>
+
+</head>
+
+<body>
+
+	<kbd>Press Command + Shift + N</kbd>
+
+	<script>
+
+		document.addEventListener('keydown', function(event) {
+
+			if (event.key === 'N' && event.shiftKey && event.metaKey) {
+
+				alert('Command + Shift + N was pressed');
+
+			}
+
+		});
+
+	</script>
+
+</body>
